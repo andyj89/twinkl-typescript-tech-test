@@ -38,7 +38,7 @@ These are the requirements for the system:
 
 Before you begin, ensure you have the following installed on your machine:
 
-- [Node.js](https://nodejs.org/): Ensure that Node.js, preferably version 16 or higher, is installed on your system, as this project utilizes the latest versions of TypeScript and Nodemon.
+- [Node.js](https://nodejs.org/): Ensure that Node.js version 22 or higher is installed on your system, as this project utilizes the latest versions of TypeScript and Nodemon.
 - [npm](https://www.npmjs.com/): npm is the package manager for Node.js and comes with the Node.js installation.
 
 ### Installation
@@ -87,4 +87,105 @@ There are also commands to build and start a server without nodemon:
 npm run build
 npm start
 ```
+
+## The API
+
+Design decisions and trade-offs are in [NOTES.md](NOTES.md).
+
+The SQLite driver (`better-sqlite3` 13) requires Node 22 or later.
+
+### Configuration
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `PORT` | `3000` | Port the server listens on |
+| `DB_PATH` | `data/twinkl.db` | SQLite file, created on first run. Use `:memory:` for a throwaway database |
+
+### Tests and checks
+
+```
+npm test            # unit tests, then end-to-end tests
+npm run test:unit   # unit tests, next to the code they cover in src/
+npm run test:e2e    # end-to-end tests over HTTP, in test/
+npm run typecheck
+npm run lint
+```
+
+### Sign up
+
+`POST /users` with a JSON body.
+
+| Field | Rules |
+| --- | --- |
+| `fullName` | Required, not empty |
+| `email` | Required, a valid email. Stored lowercase and unique, ignoring case |
+| `password` | 8 to 64 characters with at least one digit, one lowercase and one uppercase letter |
+| `createdDate` | ISO 8601 date and time, for example `2024-05-01T10:00:00Z` |
+| `userType` | One of `student`, `teacher`, `parent`, `private_tutor` |
+
+```
+curl -X POST localhost:3000/users -H 'Content-Type: application/json' -d '{
+  "fullName": "Ada Lovelace",
+  "email": "ada@example.com",
+  "password": "Passw0rdOk",
+  "createdDate": "2024-05-01T10:00:00Z",
+  "userType": "teacher"
+}'
+```
+
+Responds `201` with the saved user. The password is hashed with argon2id and is never returned.
+
+```json
+{
+  "id": "6bbc25e4-a9e9-4b42-bfb7-0d48385876f9",
+  "fullName": "Ada Lovelace",
+  "email": "ada@example.com",
+  "userType": "teacher",
+  "createdDate": "2024-05-01T10:00:00Z"
+}
+```
+
+### Get a user
+
+`GET /users/:id` responds `200` with the same user object, or `404` if the id is unknown.
+
+### Errors
+
+Every error has the same shape. Clients should act on `code` and not on `message`. A validation failure lists every problem in `details`, one entry per failing rule.
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "The request contains invalid fields.",
+    "details": [
+      { "field": "password", "code": "PASSWORD_TOO_SHORT" },
+      { "field": "password", "code": "PASSWORD_MISSING_DIGIT" }
+    ]
+  }
+}
+```
+
+| Status | `error.code` | Meaning |
+| --- | --- | --- |
+| 400 | `VALIDATION_ERROR` | One or more fields are invalid, see `details` |
+| 400 | `INVALID_JSON` | The request body is not valid JSON |
+| 404 | `USER_NOT_FOUND` | No user has that id |
+| 409 | `EMAIL_ALREADY_EXISTS` | The email is already registered |
+| 500 | `INTERNAL_ERROR` | Unexpected server error, details are only logged |
+
+Codes in `details[].code`:
+
+| Code | Field | Meaning |
+| --- | --- | --- |
+| `FIELD_REQUIRED` | `fullName`, `email`, `password` | Missing or empty |
+| `INVALID_BODY` | `body` | The body is not a JSON object |
+| `INVALID_EMAIL` | `email` | Not a valid email address |
+| `INVALID_DATE` | `createdDate` | Missing or not an ISO 8601 date and time |
+| `INVALID_USER_TYPE` | `userType` | Missing or not one of the allowed values |
+| `PASSWORD_TOO_SHORT` | `password` | Fewer than 8 characters |
+| `PASSWORD_TOO_LONG` | `password` | More than 64 characters |
+| `PASSWORD_MISSING_DIGIT` | `password` | No digit |
+| `PASSWORD_MISSING_LOWERCASE` | `password` | No lowercase letter |
+| `PASSWORD_MISSING_UPPERCASE` | `password` | No uppercase letter |
 
