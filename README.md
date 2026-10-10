@@ -38,7 +38,7 @@ These are the requirements for the system:
 
 Before you begin, ensure you have the following installed on your machine:
 
-- [Node.js](https://nodejs.org/): Ensure that Node.js version 22 or higher is installed on your system, as this project utilizes the latest versions of TypeScript and Nodemon.
+- [Node.js](https://nodejs.org/): Ensure that Node.js version 22 or higher is installed on your system, as this project utilizes the latest version of TypeScript.
 - [npm](https://www.npmjs.com/): npm is the package manager for Node.js and comes with the Node.js installation.
 
 ### Installation
@@ -67,7 +67,7 @@ npm i
 
 ### Usage
 
-In development the following command will start the server and use `nodemon` to auto-reload the server based on file changes
+In development the following command will start the server and use Node's built-in `--watch` to auto-reload the server based on file changes
 
 ```
 npm run dev
@@ -81,7 +81,7 @@ There are no tests in the project at the moment, but a command is available to r
 npm run test
 ```
 
-There are also commands to build and start a server without nodemon:
+There are also commands to build and start a server without the file watcher:
 
 ```
 npm run build
