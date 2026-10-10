@@ -2,6 +2,9 @@
   "name": "twinkl-typescript-tech-test",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
@@ -16,10 +19,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.19.2"
+    "argon2": "^0.45.1",
+    "better-sqlite3": "^13.0.3",
+    "express": "^4.19.2",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.12",
     "earl": "^2.0.0",
