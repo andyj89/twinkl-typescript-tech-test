@@ -11,8 +11,8 @@
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "test": "npm run test:unit && npm run test:e2e",
-    "test:unit": "node --require ts-node/register --test $(find src -name '*.test.ts')",
-    "test:e2e": "node --require ts-node/register --test $(find test -name '*.test.ts')",
+    "test:unit": "node --require ts-node/register --test \"src/**/*.test.ts\"",
+    "test:e2e": "node --require ts-node/register --test \"test/**/*.test.ts\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

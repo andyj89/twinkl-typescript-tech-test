@@ -18,6 +18,7 @@ describe('users API', () => {
 
   before(async () => {
     // Must be set before the app loads, so it gets a throwaway database.
+    // Each test file runs in its own process, so this cannot leak into other tests.
     process.env.DB_PATH = ':memory:';
     const { app } = await import('../src/app');
 
